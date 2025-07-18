@@ -26,14 +26,23 @@ module alu (
 
 endmodule
 
-module alu_src_mux (
+module alu_src1_mux (
+    input [31:0] rs1_data,
+    input [31:0] pc,
+    input alu_src1,               // 1 for AUIPC, 0 for rs1 data
+    output [31:0] alu_input1
+);
+    assign alu_input1 = alu_src1 ? pc : rs1_data;
+endmodule
+
+module alu_src2_mux (
     input [31:0] rs2_data,
     input [31:0] offset,
-    input alu_src,
+    input alu_src2,                // 1 for immediate value, 0 for rs2 data   
     output [31:0] alu_input2
     );
 
-    assign alu_input2 = (alu_src ? offset : rs2_data);
+    assign alu_input2 = (alu_src2 ? offset : rs2_data);
 
 endmodule
 

@@ -2,13 +2,15 @@ module control_unit (
     input [6:0] opcode,
     output reg [2:0] immediate_control,
     output reg [1:0] alu_operation,
-    output reg alu_src,
+    output reg alu_src1,
+    output reg alu_src2,
     output reg mem_to_reg,
     output reg jump,
     output reg reg_write,
     output reg mem_read,
-    output reg mem_write
-    output reg is_rtype
+    output reg mem_write,
+    output reg is_rtype,
+    output reg is_jalr
 );
 
 // Common opcode definitions
@@ -44,13 +46,15 @@ always @(*)
         // default
         immediate_control = NONE;    // default invalid
         alu_operation = NO_ALU;      // default invalid
-        alu_src = 0;                 // set to 0 for rs2, 1 for immediate 
+        alu_src1 = 0;                // set to 0 for rs1 data, 1 for PC
+        alu_src2 = 0;                 // set to 0 for rs2, 1 for immediate 
         mem_to_reg = 0;              // set to 0 for ALU to register file, 1 for D-cache to register file
         jump = 0;                    // set to 0 for other operations, 1 for PC+4 to register file for jump instructions
         reg_write = 0;               // enable register write data
         mem_read = 0;                // D-cache read
         mem_write = 0;               // D-cache write
         is_rtype = 0;                // default 0
+        is_jalr = 0;                 // default 0, set to 1 for JALR instruction
         case (opcode)
             OPERATE_REGISTER:   // all R-type operations
                 begin                   
@@ -62,14 +66,14 @@ always @(*)
                 begin                  
                     alu_operation = ARITHMETIC;
                     immediate_control = IMM_I; 
-                    alu_src = 1;
+                    alu_src2 = 1;
                     reg_write = 1;
                 end
             LOAD:
                 begin
                     alu_operation = ADD_OFFSET;
                     immediate_control = IMM_I;
-                    alu_src = 1;
+                    alu_src2 = 1;
                     mem_to_reg = 1;
                     reg_write = 1;
                     mem_read = 1;
@@ -78,7 +82,7 @@ always @(*)
                 begin
                     alu_operation = ADD_OFFSET;
                     immediate_control = IMM_S;
-                    alu_src = 1;
+                    alu_src2 = 1;
                     mem_write = 1;
                 end
             BRANCH:
@@ -98,9 +102,10 @@ always @(*)
                 begin
                     alu_operation = ADD_OFFSET;
                     immediate_control = IMM_I;
-                    alu_src = 1;
+                    alu_src2 = 1;
                     jump = 1;
                     reg_write = 1;
+                    is_jalr = 1;
                 end
             LUI:
                 begin
@@ -112,6 +117,8 @@ always @(*)
                 begin
                     alu_operation = ADD_OFFSET;
                     immediate_control = IMM_U;
+                    alu_src1 = 1; // AUIPC uses PC as first ALU input
+                    alu_src2 = 1; // Use immediate
                     reg_write = 1;
                 end
             default:
