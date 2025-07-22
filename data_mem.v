@@ -10,18 +10,21 @@ module data_mem (
     );
 
     reg [31:0] mem [0:1023];  // 1KB memory (word addressed)
-
+    
+    // Declare variables outside always blocks
+    integer i;
+    reg [31:0] word;
+    
     always @(posedge clk or posedge reset) begin
         if (reset) begin
-            integer i;
             for (i = 0; i < 1024; i = i + 1) begin
                 mem[i] <= 32'b0;
             end
         end else if (write_enable) begin
             // funct3: 0=SB, 1=SH, 2=SW
+            word = mem[address[11:2]];
             case (funct3)
                 3'b000: begin // SB (Store Byte)
-                    reg [31:0] word = mem[address[11:2]];
                     case (address[1:0])
                         2'b00: word[7:0]   = write_data[7:0];
                         2'b01: word[15:8]  = write_data[7:0];
@@ -31,7 +34,6 @@ module data_mem (
                     mem[address[11:2]] <= word;
                 end
                 3'b001: begin // SH (Store Halfword)
-                    reg [31:0] word = mem[address[11:2]];
                     if (address[1] == 1'b0)
                         word[15:0] = write_data[15:0];
                     else

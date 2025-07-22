@@ -10,6 +10,7 @@ module regfile(
     output [31:0] rs2_read
     );
     reg [31:0] registers [31:0];
+    integer i;  // Declare at module level
 
     // Combinational read
     assign rs1_read = (rs1_address == 5'b0) ? 32'b0 : registers[rs1_address];
@@ -19,7 +20,6 @@ module regfile(
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             // Optionally clear all registers except x0
-            integer i;
             for (i = 1; i < 32; i = i + 1) begin
                 registers[i] <= 32'b0;
             end

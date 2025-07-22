@@ -41,14 +41,15 @@ module pc_mux (
     input  wire [31:0] target_addr,            // PC+imm or rs1+imm
     input  wire        jump,
     input  wire        branch_condition_match,
+    input  wire [6:0]  opcode,                 // Add opcode input for safety check
     output reg  [31:0] pc_next
 );
 
 always @(*) begin
   if      (jump)
     pc_next = target_addr;      // JAL/JALR
-  else if (branch_condition_match)
-    pc_next = target_addr;      // BEQ/BNE/…
+  else if (branch_condition_match && (opcode == 7'b1100011))  // Only branch for actual branch instructions
+    pc_next = target_addr;      // BEQ/BNE/… (only if actually a branch instruction)
   else
     pc_next = pc_increment;     // PC+4
 end

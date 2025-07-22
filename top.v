@@ -6,7 +6,7 @@ module top(
 wire [31:0] pc_next;
 wire [31:0] pc;
 // Instantiate program counter register
-program_counter pc(
+program_counter pc_inst(
     .pc(pc),
     .clk(clk),
     .reset(reset),
@@ -66,7 +66,7 @@ assign rs2_address = instruction[24:20];
 assign rd_address  = instruction[11:7];
 
 // Register file
-regfile registers(
+regfile register_file(
     .clk(clk),
     .reset(reset),
     .rs1_address(rs1_address),
@@ -89,14 +89,14 @@ immediate_generator immediate(
 wire [31:0] alu_input1;
 wire [31:0] alu_input2;
 
-alu_src1_mux alu_input1(
+alu_src1_mux alu_src1_mux_inst(
     .rs1_data(rs1_read),
     .pc(pc),
     .alu_src1(alu_src1),
     .alu_input1(alu_input1)
 );
 
-alu_src2_mux alu_input2(
+alu_src2_mux alu_src2_mux_inst(
     .rs2_data(rs2_read),
     .offset(sign_extended_immediate),
     .alu_src2(alu_src2),
@@ -126,16 +126,17 @@ alu alu_unit(
 );
 
 // Generate comparison signals for branch unit
-assign lt = ($signed(rs1_read) < $signed(rs2_read));
-assign ltu = (rs1_read < rs2_read);
+assign lt = ($signed(alu_input1) < $signed(alu_input2));
+assign ltu = (alu_input1 < alu_input2);
 
 wire branch_condition_match;
 // Branch unit
-branch_unit branch_unit(
+branch_unit branch_unit_inst(
     .funct3(instruction[14:12]),
     .zero(zero),
     .lt(lt),
     .ltu(ltu),
+    .opcode(opcode),
     .branch_condition_match(branch_condition_match)
 );
 
@@ -174,13 +175,14 @@ target_address_mux target_addr_mux(
     .target_address(target_address)
 );
 
-wire pc_increment;
+wire [31:0] pc_increment;
 assign pc_increment = pc + 4;
 pc_mux pc_control(
     .pc_increment(pc_increment),
     .target_addr(target_address),
     .jump(jump),
     .branch_condition_match(branch_condition_match),
+    .opcode(opcode),                           // Add opcode connection
     .pc_next(pc_next)
 );
 

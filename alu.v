@@ -104,19 +104,25 @@ module branch_unit (
     input  wire        zero,                     // ALU result == 0
     input  wire        lt,                       // signed(integer1 < integer2)
     input  wire        ltu,                      // unsigned(integer1 < integer2)
+    input  wire [6:0]  opcode,                   // instruction opcode to check if it's a branch
     output reg         branch_condition_match    // 1 if comparison matches desired condition
 );
 
+// Only evaluate branch condition for actual branch instructions
 always @(*) begin
-    case (funct3)
-        3'b000: branch_condition_match = zero;        // BEQ
-        3'b001: branch_condition_match = ~zero;       // BNE
-        3'b100: branch_condition_match = lt;          // BLT (signed)
-        3'b101: branch_condition_match = ~lt;         // BGE (signed)
-        3'b110: branch_condition_match = ltu;         // BLTU (unsigned)
-        3'b111: branch_condition_match = ~ltu;        // BGEU (unsigned)
-        default: branch_condition_match = 1'b0;
-    endcase
+    branch_condition_match = 1'b0;  // Default to no branch
+    
+    if (opcode == 7'b1100011) begin  // BRANCH opcode
+        case (funct3)
+            3'b000: branch_condition_match = zero;        // BEQ
+            3'b001: branch_condition_match = ~zero;       // BNE
+            3'b100: branch_condition_match = lt;          // BLT (signed)
+            3'b101: branch_condition_match = ~lt;         // BGE (signed)
+            3'b110: branch_condition_match = ltu;         // BLTU (unsigned)
+            3'b111: branch_condition_match = ~ltu;        // BGEU (unsigned)
+            default: branch_condition_match = 1'b0;
+        endcase
+    end
 end
 
 endmodule

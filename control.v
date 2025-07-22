@@ -121,7 +121,8 @@ always @(*)
                     alu_src2 = 1; // Use immediate
                     reg_write = 1;
                 end
-            default:
+            default: begin
+            end
         endcase
     end
 endmodule
