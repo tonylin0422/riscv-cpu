@@ -9,7 +9,7 @@ top uut(
     .reset(reset)
 );
 
-always #25 clk = ~clk;  // 50ns period (25ns high, 25ns low) instead of 10ns
+always #25 clk = ~clk;  
 
 initial begin
     // VCD dump for waveform analysis
@@ -58,10 +58,11 @@ end
 
 // Enhanced monitoring with more debug signals
 initial begin
-    $monitor("Time:%0t | PC:%h | Instr:%h | x1:%h | x2:%h | x3:%h | x4:%h | x5:%h | reg_write:%b | pc_next:%h", 
+    $monitor("Time:%0t | PC:%h | Instr:%h | x1:%h | x2:%h | x3:%h | x4:%h | x5:%h | x10:%h | reg_write:%b | pc_next:%h", 
              $time, uut.pc, uut.instruction, 
              uut.register_file.registers[1], uut.register_file.registers[2], 
              uut.register_file.registers[3], uut.register_file.registers[4], uut.register_file.registers[5],
+             uut.register_file.registers[10],
              uut.reg_write, uut.pc_next);
 end
 

@@ -95,8 +95,8 @@ always @(*)
                 begin
                     alu_operation = NO_ALU;
                     immediate_control = IMM_J;
-                    //pc_src = 1;
-                    jump = 1;
+                        jump = 1;
+                    reg_write = 1;  // Enable register write for return address
                 end
             JALR:
                 begin
