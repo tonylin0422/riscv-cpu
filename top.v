@@ -142,7 +142,7 @@ branch_unit branch_unit_inst(
 
 wire [31:0] dcache_read;
 // D-cache
-data_mem dcache(
+data_mem dmem(
     .clk(clk),
     .reset(reset),
     .address(alu_result),

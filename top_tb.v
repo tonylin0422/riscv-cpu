@@ -20,7 +20,7 @@ initial begin
     reset = 1;
     #10 reset = 0;
 
-    uut.dcache.mem[4] = 32'h00000000;  // Initialize memory at word address 4 (byte address 16)
+    uut.dmem.memory[4] = 32'h00000000;  // Initialize memory at word address 4 (byte address 16)
     // Initialize base address for memory operations
     uut.imem.memory[0] = 32'h01000213; // ADDI x4, x0, 16 (x4 = 16 for memory base)
     uut.imem.memory[1] = 32'h00100093; // ADDI x1, x0, 1 (x1 = 1)
