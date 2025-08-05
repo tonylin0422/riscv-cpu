@@ -1,11 +1,14 @@
 module top(
     input clk,
-    input reset
+    input reset,
 );
 
-wire [31:0] pc_next;
+/* ========== IF STAGE ========== */
 wire [31:0] pc;
-// Instantiate program counter register
+wire [31:0] pc_next;
+wire [31:0] instruction;
+
+// Program counter 
 program_counter pc_inst(
     .pc(pc),
     .clk(clk),
@@ -13,7 +16,6 @@ program_counter pc_inst(
     .pc_next(pc_next)
 );
 
-wire [31:0] instruction;
 // Instruction memory
 instruction_memory imem(
     .pc_address(pc),
@@ -22,6 +24,24 @@ instruction_memory imem(
     .instruction(instruction)
 );
 
+/* ========== IF/ID REGISTER ========== */
+wire stall_if_id;
+wire flush_branch;
+wire [31:0] if_id_pc;
+wire [31:0] if_id_instruction;
+
+if_id_reg if_id_register(
+    .clk(clk),
+    .reset(reset),
+    .stall(stall_if_id),
+    .flush(flush_branch),
+    .instruction_in(instruction),
+    .pc_in(pc),
+    .instruction_out(if_id_instruction),
+    .pc_out(if_id_pc)
+);
+
+/* ========== ID STAGE ========== */
 // Control signals
 wire [6:0] opcode;
 wire [2:0] immediate_control;
@@ -36,8 +56,9 @@ wire mem_write;
 wire is_rtype;
 wire is_jalr;
 
-assign opcode = instruction[6:0];
+assign opcode = if_id_instruction[6:0];
 
+// Control Unit
 control_unit cu(
     .opcode(opcode),
     .immediate_control(immediate_control),
@@ -53,6 +74,7 @@ control_unit cu(
     .is_jalr(is_jalr)
 );
 
+// Regfile signals
 wire [4:0] rs1_address;
 wire [4:0] rs2_address;
 wire [4:0] rd_address;
@@ -61,9 +83,9 @@ wire [31:0] rs1_read;
 wire [31:0] rs2_read;
 
 // RS1 and RS2 and RD based on RISC-V instruction format
-assign rs1_address = instruction[19:15];
-assign rs2_address = instruction[24:20];
-assign rd_address  = instruction[11:7];
+assign rs1_address = if_id_instruction[19:15];
+assign rs2_address = if_id_instruction[24:20];
+assign rd_address  = if_id_instruction[11:7];
 
 // Register file
 regfile register_file(

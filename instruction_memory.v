@@ -4,17 +4,10 @@ module instruction_memory(
     input reset,
     output reg [31:0] instruction
     );
-    reg [31:0] memory [1023:0]; // example memory size of 1 kB
+    reg [31:0] memory [1023:0] = '{default: 32'h00000000};
     
-    // Combinational read for single-cycle CPU
     always @(*) begin
-        instruction = memory[pc_address[11:2]]; // Word-aligned access
+        instruction = memory[pc_address[11:2]];
     end
     
-    // Optional: Initialize memory on reset
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
-            // Memory initialization can be done here if needed
-        end
-    end
 endmodule

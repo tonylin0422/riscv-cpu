@@ -2,6 +2,7 @@ module program_counter(
     input [31:0] pc_next,
     input clk,
     input reset,
+    input stall_pc,
     output reg [31:0] pc
     );
 
@@ -9,7 +10,7 @@ module program_counter(
         begin
             if (reset)
                 pc <= 32'h00000000;
-            else
+            else if (!stall_pc)
                 pc <= pc_next;
         end
     
