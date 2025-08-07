@@ -1,10 +1,10 @@
 # XDC file for RISC-V CPU synthesis in Vivado
 # This file contains pin assignments and timing constraints for the RISC-V CPU design
 
-# Clock constraint - 20MHz system clock (matching testbench frequency)
-# Period = 50ns for 20MHz (1/20MHz = 50ns)
-# Note: Nexys A7 has 100MHz oscillator, but you can run at lower frequencies
-create_clock -period 50.000 -name sys_clk [get_ports clk]
+# Clock constraint - 100MHz system clock (matching testbench frequency)
+# Period = 10ns for 100MHz (1/20MHz = 50ns)
+
+create_clock -period 10.00 -name sys_clk [get_ports clk]
 
 # Clock pin assignment for common FPGA boards
 # Uncomment and modify based on your specific board:

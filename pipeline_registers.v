@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module if_id_reg(
     input clk,
     input reset,

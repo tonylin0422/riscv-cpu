@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module control_unit (
     input [6:0] opcode,
     output reg [2:0] immediate_control,
@@ -127,6 +128,6 @@ always @(*)
     end
 endmodule
 
-                
-            
+
+
 

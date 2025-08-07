@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module data_mem (
     input clk,
     input reset,
@@ -15,12 +16,8 @@ module data_mem (
     integer i;
     reg [31:0] word;
     
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
-            for (i = 0; i < 1024; i = i + 1) begin
-                memory[i] <= 32'b0;
-            end
-        end else if (write_enable) begin
+    always @(posedge clk) begin
+        if (write_enable) begin
             // funct3: 0=SB, 1=SH, 2=SW
             word = memory[address[11:2]];
             case (funct3)
@@ -49,45 +46,40 @@ module data_mem (
     end
 
     always @(*) begin
-        if (read_enable) begin
-            // funct3: 0=LB, 1=LH, 2=LW, 4=LBU, 5=LHU
-            case (funct3)
-                3'b000: begin // LB (Load Byte, signed)
-                    case (address[1:0])
-                        2'b00: read_data = {{24{memory[address[11:2]][7]}},  memory[address[11:2]][7:0]};
-                        2'b01: read_data = {{24{memory[address[11:2]][15]}}, memory[address[11:2]][15:8]};
-                        2'b10: read_data = {{24{memory[address[11:2]][23]}}, memory[address[11:2]][23:16]};
-                        2'b11: read_data = {{24{memory[address[11:2]][31]}}, memory[address[11:2]][31:24]};
-                    endcase
-                end
-                3'b001: begin // LH (Load Halfword, signed)
-                    if (address[1] == 1'b0)
-                        read_data = {{16{memory[address[11:2]][15]}}, memory[address[11:2]][15:0]};
-                    else
-                        read_data = {{16{memory[address[11:2]][31]}}, memory[address[11:2]][31:16]};
-                end
-                3'b010: begin // LW (Load Word)
-                    read_data = memory[address[11:2]];
-                end
-                3'b100: begin // LBU (Load Byte, unsigned)
-                    case (address[1:0])
-                        2'b00: read_data = {24'b0, memory[address[11:2]][7:0]};
-                        2'b01: read_data = {24'b0, memory[address[11:2]][15:8]};
-                        2'b10: read_data = {24'b0, memory[address[11:2]][23:16]};
-                        2'b11: read_data = {24'b0, memory[address[11:2]][31:24]};
-                    endcase
-                end
-                3'b101: begin // LHU (Load Halfword, unsigned)
-                    if (address[1] == 1'b0)
-                        read_data = {16'b0, memory[address[11:2]][15:0]};
-                    else
-                        read_data = {16'b0, memory[address[11:2]][31:16]};
-                end
-                default: read_data = 32'b0;
-            endcase
-        end else begin
-            read_data = 32'bz;
-        end
+        case (funct3)
+            3'b000: begin // LB (Load Byte, signed)
+                case (address[1:0])
+                    2'b00: read_data = {{24{memory[address[11:2]][7]}},  memory[address[11:2]][7:0]};
+                    2'b01: read_data = {{24{memory[address[11:2]][15]}}, memory[address[11:2]][15:8]};
+                    2'b10: read_data = {{24{memory[address[11:2]][23]}}, memory[address[11:2]][23:16]};
+                    2'b11: read_data = {{24{memory[address[11:2]][31]}}, memory[address[11:2]][31:24]};
+                endcase
+            end
+            3'b001: begin // LH (Load Halfword, signed)
+                if (address[1] == 1'b0)
+                    read_data = {{16{memory[address[11:2]][15]}}, memory[address[11:2]][15:0]};
+                else
+                    read_data = {{16{memory[address[11:2]][31]}}, memory[address[11:2]][31:16]};
+            end
+            3'b010: begin // LW (Load Word)
+                read_data = memory[address[11:2]];
+            end
+            3'b100: begin // LBU (Load Byte, unsigned)
+                case (address[1:0])
+                    2'b00: read_data = {24'b0, memory[address[11:2]][7:0]};
+                    2'b01: read_data = {24'b0, memory[address[11:2]][15:8]};
+                    2'b10: read_data = {24'b0, memory[address[11:2]][23:16]};
+                    2'b11: read_data = {24'b0, memory[address[11:2]][31:24]};
+                endcase
+            end
+            3'b101: begin // LHU (Load Halfword, unsigned)
+                if (address[1] == 1'b0)
+                    read_data = {16'b0, memory[address[11:2]][15:0]};
+                else
+                    read_data = {16'b0, memory[address[11:2]][31:16]};
+            end
+            default: read_data = 32'b0;
+        endcase
     end
 
 endmodule

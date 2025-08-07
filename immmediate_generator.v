@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module immediate_generator(
     input [31:0] instruction,
     input [2:0] immediate_control,

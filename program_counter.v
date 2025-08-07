@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module program_counter(
     input [31:0] pc_next,
     input clk,
@@ -6,11 +8,11 @@ module program_counter(
     output reg [31:0] pc
     );
 
-    always @ (posedge clk, posedge reset)
+    always @ (posedge clk or posedge reset)
         begin
             if (reset)
                 pc <= 32'h00000000;
-            else if (!stall_pc)
+            else if (!stall_pc)     // If stalled, hold current PC value
                 pc <= pc_next;
         end
     
@@ -55,4 +57,15 @@ always @(*) begin
     pc_next = pc_increment;     // PC+4
 end
 
+endmodule
+
+// FIXED: PC increment unit that properly handles the first fetch after reset
+module pc_increment_unit(
+    input [31:0] current_pc,
+    input reset,
+    output [31:0] pc_plus_4
+);
+    // During reset, output 0 to keep PC at 0
+    // After reset, PC should increment normally: 0->4->8->etc
+    assign pc_plus_4 = reset ? 32'h00000000 : (current_pc + 32'h00000004);
 endmodule

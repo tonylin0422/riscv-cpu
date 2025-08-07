@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module fu (
     input [4:0] ex_rs1_address,
     input [4:0] ex_rs2_address,
@@ -17,7 +18,7 @@ module fu (
 always @(*) begin
     forward1 = 2'b00;
     forward2 = 2'b00;
-    if (mem_reg_write && (mem_rd_address != 0)) begin
+    if (mem_reg_write && (mem_rd_address != 5'b0)) begin
         if (mem_rd_address == ex_rs1_address) begin
             forward1 = 2'b01;
         end
@@ -25,19 +26,15 @@ always @(*) begin
             forward2 = 2'b01;
         end
     end
-    if (wb_reg_write && (wb_rd_address != 0)) begin
-        if ((wb_rd_address == ex_rs1_address) && (forward1 = 2'b00)) begin
+    if (wb_reg_write && (wb_rd_address != 5'b0)) begin
+        if ((wb_rd_address == ex_rs1_address) && (forward1 == 2'b00)) begin
             forward1 = 2'b10;
         end
-        if ((wb_rd_address == ex_rs2_address) && (forward2 = 2'b00))begin
+        if ((wb_rd_address == ex_rs2_address) && (forward2 == 2'b00)) begin
             forward2 = 2'b10;
         end
     end
-    else begin
-        forward1 = 2'b00;
-        forward2 = 2'b00;
-    end
 end
 endmodule
-    
+
 

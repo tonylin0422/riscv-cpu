@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module alu (
     input wire [31:0] integer1,
     input wire [31:0] integer2,
@@ -20,6 +22,7 @@ module alu (
             4'b0111: result = integer1 << integer2[4:0];           // SLL
             4'b1000: result = integer1 >> integer2[4:0];           // SRL
             4'b1001: result = $signed(integer1) >>> integer2[4:0]; // SRA
+            4'b1111: result = 32'b0;                               // NO_ALU case - force zero
             default: result = 32'b0;
         endcase
     end
